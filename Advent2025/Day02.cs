@@ -67,8 +67,6 @@
                 {
                     long lower = range.Item1;
                     long higher = range.Item2;
-                    if (n == 3 && lower == 95)
-                        ;
                     if (higherD % n == 0 || lowerD % n == 0)
                     {
                         if (lowerD % n != 0)
