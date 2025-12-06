@@ -115,7 +115,7 @@ namespace Advent2025
             }
             return ReturnList;
         }
-        public Dictionary<Coordinate, char> ParseCoordinateCharDic(string input)
+        public Dictionary<Coordinate, char> ParseCoordinateCharDic(string input, char ignore = '!')
         {
             Dictionary<Coordinate, char> ReturnDic = new Dictionary<Coordinate, char>();
             string Input = input.Replace("\r\n", "_");
@@ -124,7 +124,8 @@ namespace Advent2025
             {
                 for (int x = 0; x < RawInstructions[y].Length; x++)
                 {
-                    ReturnDic.Add(new Coordinate(x, RawInstructions.Length - (y + 1)), RawInstructions[y][x]);
+                    if (RawInstructions[y][x] != ignore)
+                        ReturnDic.Add(new Coordinate(x, RawInstructions.Length - (y + 1)), RawInstructions[y][x]);
                 }
             }
             return ReturnDic;
