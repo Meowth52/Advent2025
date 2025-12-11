@@ -42,15 +42,15 @@
             {
                 box.PrioritizeFriends();
             }
-            List<float> distances = new List<float>();
+            HashSet<float> distancesH = new HashSet<float>();
             Dictionary<float, List<(Cooschmoordinate, Cooschmoordinate)>> distanceLookup = new Dictionary<float, List<(Cooschmoordinate, Cooschmoordinate)>>();
             foreach (Cooschmoordinate box in Boxes)
             {
                 foreach ((Cooschmoordinate friend, float distance) in box.Friends)
                 {
-                    if (!distances.Contains(distance))
+                    if (!distancesH.Contains(distance))
                     {
-                        distances.Add(distance);
+                        distancesH.Add(distance);
                         distanceLookup.Add(distance, new List<(Cooschmoordinate, Cooschmoordinate)>());
                     }
                     if (!distanceLookup[distance].Contains((box, friend)) && !distanceLookup[distance].Contains((friend, box)))
@@ -62,6 +62,7 @@
             HashSet<(Cooschmoordinate, Cooschmoordinate)> done = new HashSet<(Cooschmoordinate, Cooschmoordinate)>();
             List<HashSet<Cooschmoordinate>> circuits = new List<HashSet<Cooschmoordinate>>();
             int connections = 0;
+            List<float> distances = distancesH.ToList();
             distances.Sort();
             while (connections < iterations)
             {
@@ -89,7 +90,9 @@
                 bool found = false;
                 bool doubleTrouble = false;
                 int imJustSpammingVariablesAtThisPoint = 0;
+                int andFirstOne = 0;
                 int andAnotherOne = 0;
+                bool connected = false;
                 foreach (HashSet<Cooschmoordinate> circuit in circuits)
                 {
                     if (circuit.Contains(lonelyGuy) || circuit.Contains(canHasFriend))
@@ -105,16 +108,19 @@
                         if (!circuit.Contains(canHasFriend))
                         {
                             circuit.Add(canHasFriend);
+                            connected = true;
                             connections++;
                         }
                         else if (!circuit.Contains(lonelyGuy))
                         {
                             circuit.Add(lonelyGuy);
+                            connected = true;
                             connections++;
                         }
                         else
-                            ;
+                            connections++; ;
                         found = true;
+                        andFirstOne = imJustSpammingVariablesAtThisPoint;
                     }
                     imJustSpammingVariablesAtThisPoint++;
                 }
@@ -128,9 +134,13 @@
                 }
                 if (doubleTrouble)
                 {
+                    connections++;
+                    //if (connections > iterations)
+                    //    break;
                     foreach (Cooschmoordinate coosch in circuits[andAnotherOne])
-                        circuits[imJustSpammingVariablesAtThisPoint].Add(coosch);
+                        circuits[andFirstOne].Add(coosch);
                     circuits.RemoveAt(andAnotherOne);
+                    //if (!connected)
                 }
             }
             List<int> circuitSizes = new List<int>();
