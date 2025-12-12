@@ -118,7 +118,7 @@
                             connections++;
                         }
                         else
-                            connections++; ;
+                            connections++;
                         found = true;
                         andFirstOne = imJustSpammingVariablesAtThisPoint;
                     }
@@ -134,13 +134,13 @@
                 }
                 if (doubleTrouble)
                 {
-                    connections++;
                     //if (connections > iterations)
                     //    break;
                     foreach (Cooschmoordinate coosch in circuits[andAnotherOne])
                         circuits[andFirstOne].Add(coosch);
                     circuits.RemoveAt(andAnotherOne);
-                    //if (!connected)
+                    if (!connected)
+                        connections++;
                 }
             }
             List<int> circuitSizes = new List<int>();
