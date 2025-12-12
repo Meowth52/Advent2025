@@ -3,6 +3,8 @@
     public class Day08 : Day
     {
         List<Cooschmoordinate> Boxes;
+        List<float> distances2;
+        Dictionary<float, List<(Cooschmoordinate, Cooschmoordinate)>> distanceLookup2;
         public Day08(string _input) : base(_input)
         {
             string Input = this.CheckFile(_input);
@@ -59,11 +61,17 @@
                     }
                 }
             }
+            distanceLookup2 = new Dictionary<float, List<(Cooschmoordinate, Cooschmoordinate)>>(distanceLookup);
+            distanceLookup2 = distanceLookup.ToDictionary(
+                entry => entry.Key,
+                entry => new List<(Cooschmoordinate, Cooschmoordinate)>(entry.Value)
+            );
             HashSet<(Cooschmoordinate, Cooschmoordinate)> done = new HashSet<(Cooschmoordinate, Cooschmoordinate)>();
             List<HashSet<Cooschmoordinate>> circuits = new List<HashSet<Cooschmoordinate>>();
             int connections = 0;
             List<float> distances = distancesH.ToList();
             distances.Sort();
+            distances2 = new List<float>(distances);
             while (connections < iterations)
             {
                 float distance = distances.First();
@@ -158,7 +166,101 @@
         }
         public string GetPartTwo()
         {
-            int ReturnValue = 0;
+            int ReturnValue = 1;
+            int iterations = 1000;
+            if (Boxes.Count < 25) // the test data
+            {
+                iterations = 10;
+            }
+            int connections = 0;
+            HashSet<(Cooschmoordinate, Cooschmoordinate)> done = new HashSet<(Cooschmoordinate, Cooschmoordinate)>();
+            List<HashSet<Cooschmoordinate>> circuits = new List<HashSet<Cooschmoordinate>>();
+            Cooschmoordinate lonelyGuy = null;
+            Cooschmoordinate canHasFriend = null;
+            HashSet<Cooschmoordinate> doneBoxes = new HashSet<Cooschmoordinate>();
+            while (doneBoxes.Count < Boxes.Count)
+            {
+                float distance = distances2.First();
+                lonelyGuy = null;
+                canHasFriend = null;
+                bool skip = true;
+                foreach (var pair in distanceLookup2[distance])
+                {
+                    if (!done.Contains(pair))
+                    {
+                        done.Add(pair);
+                        done.Add((pair.Item2, pair.Item1));
+                        lonelyGuy = pair.Item1;
+                        canHasFriend = pair.Item2;
+                        skip = false;
+                        break;
+                    }
+                }
+                if (skip)
+                    continue;
+                distanceLookup2[distance].Remove((lonelyGuy, canHasFriend));
+                if (distanceLookup2[distance].Count() == 0)
+                    distances2.RemoveAt(0);
+                bool found = false;
+                bool doubleTrouble = false;
+                int imJustSpammingVariablesAtThisPoint = 0;
+                int andFirstOne = 0;
+                int andAnotherOne = 0;
+                bool connected = false;
+                foreach (HashSet<Cooschmoordinate> circuit in circuits)
+                {
+                    if (circuit.Contains(lonelyGuy) || circuit.Contains(canHasFriend))
+                    {
+                        if (found)
+                        {
+                            doubleTrouble = true;
+                            andAnotherOne = imJustSpammingVariablesAtThisPoint;
+
+                            break;
+                        }
+
+                        if (!circuit.Contains(canHasFriend))
+                        {
+                            circuit.Add(canHasFriend);
+                            connected = true;
+                            connections++;
+                        }
+                        else if (!circuit.Contains(lonelyGuy))
+                        {
+                            circuit.Add(lonelyGuy);
+                            connected = true;
+                            connections++;
+                        }
+                        else
+                            connections++;
+                        found = true;
+                        andFirstOne = imJustSpammingVariablesAtThisPoint;
+                    }
+                    imJustSpammingVariablesAtThisPoint++;
+                }
+                if (!found)
+                {
+                    HashSet<Cooschmoordinate> newCircuit = new HashSet<Cooschmoordinate>();
+                    newCircuit.Add(lonelyGuy);
+                    newCircuit.Add(canHasFriend);
+                    circuits.Add(newCircuit);
+                    connections++;
+                }
+                if (doubleTrouble)
+                {
+                    //if (connections > iterations)
+                    //    break;
+                    foreach (Cooschmoordinate coosch in circuits[andAnotherOne])
+                        circuits[andFirstOne].Add(coosch);
+                    circuits.RemoveAt(andAnotherOne);
+                    if (!connected)
+                        connections++;
+                }
+                doneBoxes.Add(lonelyGuy);
+                doneBoxes.Add(canHasFriend);
+
+            }
+            ReturnValue = lonelyGuy.x * canHasFriend.x;
 
             return ReturnValue.ToString();
         }
