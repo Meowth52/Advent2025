@@ -75,13 +75,16 @@
         {
             return new Cooooordinate(this.x - coo.x, this.y - coo.y);
         }
-        public bool IsBetween(Cooooordinate first, Cooooordinate second)
+        public bool IsBetween(Cooooordinate first, Cooooordinate second, bool inclusive = true)
         {
             List<long> xs = new List<long>() { first.x, second.x };
             List<long> ys = new List<long>() { first.y, second.y };
             xs.Sort();
             ys.Sort();
-            return (this.x >= xs[0] && this.x <= xs[1] && this.y >= ys[0] && this.y <= ys[1]);
+            if (inclusive)
+                return (this.x >= xs[0] && this.x <= xs[1] && this.y >= ys[0] && this.y <= ys[1]);
+            else
+                return (this.x > xs[0] && this.x < xs[1] && this.y > ys[0] && this.y < ys[1]);
         }
         //public Position GetPosition()
         //{
